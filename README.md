@@ -33,7 +33,7 @@ Real-time GitHub commit scanner that watches the public events firehose and flag
 
 ### Option 1: Local Setup
 
-> Use the files inside the `Option 2 Files/` folder.
+> Use the files inside the `Option 1 Files/` folder.
 
 #### Step 1: Prepare Environment
 
@@ -62,7 +62,7 @@ git clone https://github.com/22V01D/Key-Scraper.git
 cd Key-Scraper
 
 # Navigate into the Option 1 Files directory
-cd "Option 2 Files"
+cd "Option 1 Files"
 
 # Create a virtual environment
 python -m venv venv
