@@ -31,50 +31,136 @@ Real-time GitHub commit scanner that watches the public events firehose and flag
 
 ## 🔧 How to Set Up
 
+### Option 1: Local Setup
+
+> Use the files inside the `Option 2 Files/` folder.
+
+#### Step 1: Prepare Environment
+
+```bash
+#Make sure Python 3.9+ is installed on your system.
+#macOS (Homebrew)
+brew install python git
+
+#Ubuntu/Debian:
+sudo apt update && sudo apt install python3 python3-pip python3-venv git -y
+
+#Windows Python:
+Download and install from python.org.
+During installation, check "Add Python to PATH".
+Verify installation: python --version
+
+#Windows Git:
+Download and install from git-scm.com.
+During installation, accept the defaults and make sure "Git from the command line and also from 3rd-party software" is selected.
+Verify installation: git --version
+
+#Clone the repository
+git clone https://github.com/22V01D/Key-Scraper.git
+
+#Navigate into the repo folder
+cd Key-Scraper
+
+# Navigate into the Option 1 Files directory
+cd "Option 2 Files"
+
+# Create a virtual environment
+python -m venv venv
+
+# Activate it
+# macOS / Linux:
+source venv/bin/activate
+
+# Windows:
+venv\Scripts\activate
+```
+
+#### Step 2: Install Dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+#### Step 3: Configure Environment Variables
+
+```bash
+# Copy the example env file
+cp .env.example .env
+```
+Now open `.env` in your editor and fill in your credentials:
+```env
+# Required: GitHub Personal Access Token
+# Get yours at: https://github.com/settings/tokens
+GITHUB_TOKEN=ghp_your_token_here
+
+# Optional: Discord webhook for real-time alerts
+EXFIL_WEBHOOK_URL=https://discord.com/api/webhooks/...
+
+# Optional: Data directory (defaults to ./data)
+DATA_DIR=./data
+
+# Optional: Port (defaults to 7860)
+PORT=7860
+```
+*Tip: Generate a GitHub token with no scopes selected (public read-only access is free and unlimited for the Events API).*
+
+#### Step 4: Run the Scanner
+
+```bash
+python app.py
+```
+
+#### Step 5: Open the Dashboard
+Navigate to: `http://localhost:7860`
+The dashboard will show live stats, recent intercepts, and the global stream.
+
+---
+
+### Option 2: Hugging Face Space
+
+> Use the files inside the `Option 2 Files/` folder.
+
 1. **Create a Hugging Face Account**  
-   If you don’t already have one, sign up for a new account on Hugging Face.
+   If you don't already have one, sign up for a new account on Hugging Face.
 
 2. **Create a New Space**  
    - Go to *Spaces*  
    - Click **Create New Space**  
    - Select **Docker** as the runtime  
 
-3. **Download Project Files**  
-   - Go to the GitHub repository  
-   - Download all files from the `Files` folder  
+3. **Upload Files**  
+   - Upload all files from `Option 2 Files/` into your newly created Hugging Face Space  
 
-4. **Upload Files to Hugging Face Space**  
-   - Upload the downloaded files into your newly created Hugging Face Space  
-
-5. **Add Your GitHub Token**  
+4. **Add Your GitHub Token**  
    - Open `app.py`  
    - Locate line 14  
-   - Replace `Enter_Github_Token` with your GitHub Personal Access Token (PAT)  
+   - Replace `ENTER_GITHUB_TOKEN` with your GitHub Personal Access Token (PAT)  
 
-6. **Mount a Storage Bucket**  
+5. **Mount a Storage Bucket**  
    - Go to *Space Settings* → *Storage / Buckets*  
    - Create and mount a new bucket  
-   - It will automatically load the default configuration, so you don’t need to change anything
+   - It will automatically load the default configuration, so you don't need to change anything
 
-#### B. Customize Scan Targets in `scanner.py`
+---
 
+### 🔧 Customize Scan Targets
 Open `scanner.py` to customize what keys you want to scan for inside the `TARGET_MATRIX` dictionary.
 
 > **IMPORTANT RECOMMENDATION:**
-> It is **strongly advised to comment out or remove** `GEMINI_GOOGLE_AI`, `GOOGLE_OAUTH`, and `HEROKU_API` from `TARGET_MATRIX`. These patterns produce **tons of false positives** due to common regex matches on generic UUIDs, random hashes, and example parameters in public code.
+> It is strongly advised to comment out or remove `GEMINI_GOOGLE_AI`, `GOOGLE_OAUTH`, and `HEROKU_API` from `TARGET_MATRIX`. These patterns produce tons of false positives due to common regex matches on generic UUIDs, random hashes, and example parameters in public code.
 
 To disable a scanner, put a `#` in front of its line or delete it:
 
 ```python
     # "GEMINI_GOOGLE_AI": re.compile(r"AIza[0-9A-Za-z-_]{35}"),  <-- Disabled (High false positives)
     # "GOOGLE_OAUTH": re.compile(r"ya29\.[a-zA-Z0-9_-]+"),        <-- Disabled (High false positives)
-    # "HEROKU_API": re.compile(r"[0-9a-fA-F]{8}-[0-9a-fA-F]{4}..."), <-- Disabled (High false positives)
+    # "HEROKU_API": re.compile(r"[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}"), <-- Disabled (High false positives)
 ```
 
-##### List of Available Scan Options in `scanner.py`:
+**List of Available Scan Options in `scanner.py`:**
 
 | Category | Available Target Key |
-| --- | --- |
+| :--- | :--- |
 | **AI & LLMs** | `OPENAI_SK`, `OPENAI_PROJ`, `DEEPSEEK_SK`, `ANTHROPIC_SK`, `GROQ_API`, `OPENROUTER_SK`, `XAI_Grok_API`, `PERPLEXITY_API`, `FIREWORKS_API`, `ELEVENLABS_API`, `RUNWAY_API`, `DEEPAI_API` |
 | **Cloud Platforms** | `AWS_AKIA`, `GCP_SERVICE_ACCOUNT`, `AZURE_PAT`, `IBM_WATSON_API`, `HUGGINGFACE_TOKEN` |
 | **Google Services** *(High False-Positives)* | `GEMINI_GOOGLE_AI`, `GOOGLE_OAUTH` |
@@ -83,7 +169,7 @@ To disable a scanner, put a `#` in front of its line or delete it:
 | **Crypto & Finance** | `BITCOIN_PRIV`, `ETH_PRIVATE`, `STRIPE_LIVE` |
 | **Developer Tools** | `GITHUB_PAT`, `HEROKU_API` *(High False-Positives)*, `RSA_PRIVATE` |
 
-> **Note:** A dedicated **automatic key validator module** for `scanner.py` is currently being built to filter, verify, and purge dead/false-positive keys automatically.
+> *Note: A dedicated automatic key validator module for `scanner.py` is currently being built to filter, verify, and purge dead/false-positive keys automatically.*
 
 ---
 
