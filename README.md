@@ -8,9 +8,6 @@
   Real-time GitHub commit scanner that detects leaked API keys and secrets.
 </p>
 
-> **NOTE:**
-> This project is made with the assistance of artificial intelligence.
-
 ## 🧠 Context
 Real-time GitHub commit scanner that watches the public events firehose and flags leaked API keys/tokens in recent commits. Built with FastAPI and httpx, with a live dashboard and simple JSON API.
 
@@ -56,7 +53,7 @@ During installation, accept the defaults and make sure "Git from the command lin
 Verify installation: git --version
 
 #Clone the repository
-git clone https://github.com/22V01D/Key-Scraper.git
+git clone https://github.com/0xtanmayx0/Key-Scraper.git
 
 #Navigate into the repo folder
 cd Key-Scraper
